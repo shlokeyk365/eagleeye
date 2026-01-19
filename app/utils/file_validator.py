@@ -28,7 +28,26 @@ from app.config import settings
 #exception classes (custom)
 class FileValidationError(Exception):
     """Base for file validation errors"""
-    pass
+    def __init__(self, message : str, filename: str = None, error_code : str = None):
+        super().__init__(message)
+        self.message = message
+        self.filename = filename
+        self.error_code = error_code
+        self.status_code = 400 #validation errors default
+
+    def __str__(self) -> str:
+        if self.filename:
+            return f"File validation error for '{self.filename}' : {self.message}"
+        return f"File validation error: {self.message}"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert exception to dictionary for API responses"""
+        return {
+            "error" : self.error_code or "FILE_VALIDATION_ERROR",
+            "message" : self.message,
+            "filename" : self.filename,
+            "status_code" : self.status_code
+        }
 
 class InvalidFileExtensionError(FileValidationError):
     """Base exception for when extension not allowed"""

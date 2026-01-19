@@ -51,7 +51,20 @@ class FileValidationError(Exception):
 
 class InvalidFileExtensionError(FileValidationError):
     """Base exception for when extension not allowed"""
-    pass
+    def __init__(self, filename: str, actual_extension: str, allowed_extensions: List[str]):
+        message = f"File extension '.{actual_extension}' is not allowed. Allowed extensions: {', '.join(['.' + ext for ext in allowed_extensions])}"
+        super().__init__(message, filename, "INVALID_FILE_EXTENSION")
+        self.actual_extension = actual_extension
+        self.allowed_extensions = allowed_extensions
+    
+    def to_dict(self) -> Dict[str, Any]:
+        result = super().to_dict()
+        result.update({
+            "actual_extension": self.actual_extension,
+            "allowed_extensions": self.allowed_extensions
+        })
+        return result
+
 
 class FileTooLargeError(FileValidationError):
     """Raised when file exceeds maximum size"""
